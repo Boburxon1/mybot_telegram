@@ -1,28 +1,61 @@
 import telebot
-from keyboards import *  # tugmalar importi
+from keyboards import general_classes, hafta_kunlari
 
-# Sizning bot tokeningiz
-TOKEN = "8534971100:AAH4Gejoq6Nr9aoB1t8gvG7eqJv8LnB_PGw"
+TOKEN = "8534971100:AAH4Gejoq6Nr9aoB1t8gvG7eqJv8LnB_PGw"  # <-- O'zing tokenni shu yerga qo'yasan
 bot = telebot.TeleBot(TOKEN)
 
-# /start komandasi
+user_data = {}
+
+# 9-sinf dars jadvali
+jadval_9 = {
+    "Dushanba": "📘 Algebra\n📖 Adabiyot\n🌍 Tarix",
+    "Seshanba": "📗 Ingliz tili\n🧪 Biologiya",
+    "Chorshanba": "📘 Geometriya\n🧪 Fizika",
+    "Payshanba": "📖 Ona tili\n🌍 Geografiya",
+    "Juma": "📗 Ingliz tili\n⚽ Jismoniy tarbiya",
+    "Shanba": "📘 Algebra"
+}
+
 @bot.message_handler(commands=['start'])
 def start(message):
     bot.send_message(
         message.chat.id,
-        "Salom! 📚\nDars jadvali botiga xush kelibsiz.\n\nSinfingizni tanlang:",
-        reply_markup=sinf_keyboard()
+        "Salom! 📚\nMaktab dars jadvali botiga xush kelibsiz.\n\nSinfingizni tanlang:",
+        reply_markup=general_classes()
     )
 
-# Sinfni tanlaganda hafta kunlarini chiqarish
-@bot.message_handler(func=lambda message: message.text in ["5-sinf","6-sinf","7-sinf","8-sinf","9-sinf","10-sinf","11-sinf"])
+@bot.message_handler(func=lambda m: m.text.endswith("-sinf"))
 def sinf_tanlandi(message):
-    user_sinf = message.text
+    if message.text != "9-sinf":
+        bot.send_message(
+            message.chat.id,
+            "⛔ Hozircha faqat 9-sinf uchun jadval mavjud."
+        )
+        return
+
+    user_data[message.chat.id] = "9-sinf"
     bot.send_message(
         message.chat.id,
-        f"✅ {user_sinf} tanlandi.\n\nEndi haftaning kunini tanlang:",
+        "✅ 9-sinf tanlandi.\n\n📅 Haftaning kunini tanlang:",
         reply_markup=hafta_kunlari()
     )
 
-# Botni ishga tushirish
+@bot.message_handler(func=lambda m: m.text in [
+    "Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"
+])
+def kun_tanlandi(message):
+    if user_data.get(message.chat.id) != "9-sinf":
+        bot.send_message(message.chat.id, "❗ Avval 9-sinfni tanlang.")
+        return
+
+    darslar = jadval_9.get(
+        message.text,
+        "❌ Bu kunga jadval yo‘q."
+    )
+
+    bot.send_message(
+        message.chat.id,
+        f"📚 9-sinf\n📅 {message.text}\n\n{darslar}"
+    )
+
 bot.polling()
