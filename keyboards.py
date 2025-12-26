@@ -27,4 +27,8 @@ def hafta_kunlari():
         types.KeyboardButton("Juma"),
         types.KeyboardButton("Shanba")
     )
+<<<<<<< HEAD
     return markup
+=======
+    return markup
+>>>>>>> 0766733cd3e7ed88c79ed18e8ddd91853355d69b
